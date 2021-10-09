@@ -1,0 +1,4 @@
+/firmware(/.*)?                                                     u:object_r:firmware_file:s0
+/mpt(/.*)?                      u:object_r:mpt_file:s0
+/persist(/.*)?                                                      u:object_r:mnt_vendor_file:s0
+/persist-lg(/.*)?                                                   u:object_r:mediadrm_vendor_data_file:s0
