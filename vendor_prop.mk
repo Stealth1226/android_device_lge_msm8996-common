@@ -124,6 +124,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     sdm.debug.disable_rotator_split=1 \
     ro.surface_flinger.set_idle_timer_ms=9000 \
     ro.surface_flinger.max_frame_buffer_acquired_buffers=3 \
+    debug.renderengine.backend=threaded \
     debug.sf.early.app.duration=16500000 \
     debug.sf.early.sf.duration=16000000 \
     debug.sf.earlyGl.app.duration=21000000 \
