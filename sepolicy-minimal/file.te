@@ -1,4 +1,5 @@
 type firmware_file, file_type, data_file_type;
 type mpt_file, file_type, data_file_type;
 type mediadrm_vendor_data_file, file_type, data_file_type;
-type sensors_persist_file, file_type;
+type sensors_persist_file, file_type, data_file_type;
+type sensors_data_file, file_type, data_file_type;
