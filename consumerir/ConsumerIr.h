@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 The LineageOS Project
+ * Copyright (C) 2017-2018 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,16 @@
 #include <android/hardware/ir/1.0/IConsumerIr.h>
 #include <hardware/consumerir.h>
 #include <hidl/Status.h>
+#include <netdb.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/un.h>
+#include <unistd.h>
+
+#include <sstream>
+#include <stdexcept>
+#include <string>
 
 namespace android {
 namespace hardware {
@@ -27,18 +37,17 @@ namespace ir {
 namespace V1_0 {
 namespace implementation {
 
+using ::android::hardware::hidl_vec;
 using ::android::hardware::Return;
 using ::android::hardware::Void;
-using ::android::hardware::hidl_vec;
 using ::android::hardware::ir::V1_0::ConsumerIrFreqRange;
 using ::android::hardware::ir::V1_0::IConsumerIr;
 
 class ConsumerIr : public IConsumerIr {
-   public:
-    ConsumerIr();
-
+    // Methods from ::android::hardware::ir::V1_0::IConsumerIr follow.
     Return<bool> transmit(int32_t carrierFreq, const hidl_vec<int32_t>& pattern) override;
     Return<void> getCarrierFreqs(getCarrierFreqs_cb _hidl_cb) override;
+    int sendMsg(const char* msg);
 };
 
 }  // namespace implementation

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
- * Copyright (C) 2017-2018 The LineageOS Project
+ * Copyright (C) 2018 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #define LOG_TAG "ConsumerIrService"
 
-#include <fcntl.h>
-#include <linux/lirc.h>
-
-#include <log/log.h>
-
 #include "ConsumerIr.h"
+
+#include <android-base/logging.h>
+#include <fcntl.h>
+
+#include <iostream>
+#include <vector>
 
 namespace android {
 namespace hardware {
@@ -29,31 +30,58 @@ namespace ir {
 namespace V1_0 {
 namespace implementation {
 
-// LG specific defines
-#define IR_DEVICE "/dev/ttyHSL1"
-#define LG_IR_BAUD_RATE 115200
-
-extern "C" {
-extern int transmitIr(const char *dev, int baudRate, int frequency, int pattern[], int pattern_len);
-}
-
 static hidl_vec<ConsumerIrFreqRange> rangeVec{
-    {.min = 30000, .max = 30000},
-    {.min = 33000, .max = 33000},
-    {.min = 36000, .max = 36000},
-    {.min = 38000, .max = 38000},
-    {.min = 40000, .max = 40000},
-    {.min = 56000, .max = 56000},
+    {.min = 30000, .max = 30000}, {.min = 33000, .max = 33000}, {.min = 36000, .max = 36000},
+    {.min = 38000, .max = 38000}, {.min = 40000, .max = 40000}, {.min = 56000, .max = 56000},
 };
 
-ConsumerIr::ConsumerIr() {}
+int ConsumerIr::sendMsg(const char* msg) {
+    int localsocket = -1, len;
+    struct sockaddr_un remote;
+    if ((localsocket = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
+        LOG(ERROR) << "could not create socket";
+        return -1;
+    }
+    char const* name = "org.lineageos.consumerirtransmitter.localsocket";
+    remote.sun_path[0] = '\0'; /* abstract namespace */
+    strcpy(remote.sun_path + 1, name);
+    remote.sun_family = AF_UNIX;
+    int nameLen = strlen(name);
+    len = 1 + nameLen + offsetof(struct sockaddr_un, sun_path);
+    if (connect(localsocket, (struct sockaddr*)&remote, len) == -1) {
+        LOG(ERROR) << "connect to local socket server failed, is the server running?";
+        close(localsocket);
+        return -1;
+    } else {
+        LOG(DEBUG) << "connect to local socket server success";
+    }
+    if (send(localsocket, msg, strlen(msg), 0) == -1) {
+        LOG(ERROR) << "send msg to local socket server failed";
+        close(localsocket);
+        return -1;
+    } else {
+        LOG(DEBUG) << "send msg to local socket server success";
+    }
+    close(localsocket);
+    return 0;
+}
 
+// Methods from ::android::hardware::ir::V1_0::IConsumerIr follow.
 Return<bool> ConsumerIr::transmit(int32_t carrierFreq, const hidl_vec<int32_t>& pattern) {
-    size_t entries = pattern.size();
-
-    // call into libcir_driver
-    ALOGD("transmitting pattern at %d Hz", carrierFreq);
-    return transmitIr(IR_DEVICE, LG_IR_BAUD_RATE, carrierFreq, const_cast<int32_t*>(pattern.data()), sizeof(int32_t) * entries);
+    if (pattern.size() > 0) {
+        std::ostringstream vts;
+        std::copy(pattern.begin(), pattern.end(), std::ostream_iterator<int32_t>(vts, ","));
+        vts << carrierFreq;
+        std::string msg = vts.str();
+        if (sendMsg(msg.c_str()) < 0) {
+            LOG(ERROR) << "send msg failed";
+            return false;
+        } else {
+            LOG(DEBUG) << "send msg success";
+            return true;
+        }
+    }
+    return false;
 }
 
 Return<void> ConsumerIr::getCarrierFreqs(getCarrierFreqs_cb _hidl_cb) {
