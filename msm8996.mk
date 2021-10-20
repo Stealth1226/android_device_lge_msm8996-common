@@ -125,10 +125,10 @@ PRODUCT_PACKAGES += \
     charger_res_images
 
 # ConsumerIR
-ifneq ($(filter g5 h830 h850 rs988 v20 h910 h915 h918 h990 vs995 us996 ls997,$(TARGET_DEVICE)),)
+# ifneq ($(filter g5 h830 h850 rs988 v20 h910 h915 h918 h990 vs995 us996 ls997,$(TARGET_DEVICE)),)
 PRODUCT_PACKAGES += \
     ConsumerirTransmitter
-endif
+# endif
 # Device init scripts
 PRODUCT_PACKAGES += \
     fstab.qcom \
