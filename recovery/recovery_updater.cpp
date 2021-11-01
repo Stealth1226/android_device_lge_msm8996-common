@@ -27,8 +27,8 @@
 #include <unistd.h>
 #include <ctype.h>
 
-#include "logging.h"
-#include "stringprintf.h"
+#include <android-base/logging.h>
+#include <android-base/stringprintf.h>
 
 #include "edify/expr.h"
 #include "otautil/error_code.h"
