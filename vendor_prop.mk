@@ -38,6 +38,11 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.vendor.audio.speaker.prot.enable=true \
     persist.vendor.audio.spkr.cal.duration=5
 
+
+# Bpf
+PRODUCT_PROPERTY_OVERRIDES += \
+   ro.kernel.ebpf.supported=false
+
 # Bluetooth
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.bt.bdaddr_path=/data/misc/bluetooth/bdaddr
