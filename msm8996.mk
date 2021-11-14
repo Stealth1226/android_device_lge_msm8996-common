@@ -346,6 +346,9 @@ PRODUCT_PACKAGES += \
     libtinyxml \
     libxml2
 
+# VNDK
+$(foreach target, $(shell cat $(LOCAL_PATH)/vndk.txt), $(eval PRODUCT_PACKAGES += $(target).vendor))
+
 # Treble
 PRODUCT_PACKAGES += \
     vndk-sp \
